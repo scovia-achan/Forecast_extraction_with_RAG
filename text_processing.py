@@ -10,7 +10,7 @@ import google.generativeai as genai
 from langchain_google_genai import GoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
-from text_processing import *
+from chroma_manager import *
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -350,3 +350,5 @@ if __name__ == "__main__":
     print(f"Models initialized: LLM={results['llm_model'] is not None}, Embeddings={results['embeddings_model'] is not None}")
     print(f"Rmebedding model: {results['embeddings_model'].model}")
     print(f"Connection test: {'Passed' if results['connection_status'] else 'Failed'}")
+    print(f"Chroma vectorstore loaded: {results['chroma_vectorstore'] is not None}")
+    print(f"First chunk metadata: {results['chunks'][0].metadata if results['chunks'] else 'No chunks available'}")
