@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ChunkingConfig:
     """Configuration for text chunking parameters"""
-    chunk_size: int = 1000
-    chunk_overlap: int = 200
+    chunk_size: int = 800
+    chunk_overlap: int = 150
     separators: List[str] = None
     
     def __post_init__(self):
@@ -312,43 +312,3 @@ class DocumentProcessingPipeline:
             logger.error(f"Pipeline failed: {str(e)}")
             raise
 
-
-if __name__ == "__main__":
-    # Configuration
-    load_dotenv()
-    api_key = os.getenv("GEMINI_API_KEY")
-    print("API Key:", api_key) 
-
-    PDF_FOLDER = "./data/pdfs"
-    GOOGLE_API_KEY = api_key
-    
-    # Custom configurations (optional)
-    chunking_config = ChunkingConfig(
-        chunk_size=1200,
-        chunk_overlap=200
-    )
-    
-    model_config = ModelConfig(
-        model_name="gemini-1.5-flash",
-        temperature=0.1,
-        embedding_model="models/text-embedding-004"
-    )
-    
-    # Initialize and run pipeline
-    pipeline = DocumentProcessingPipeline(
-        pdf_folder_path=PDF_FOLDER,
-        google_api_key=GOOGLE_API_KEY,
-        chunking_config=chunking_config,
-        model_config=model_config
-    )
-    
-    # Run the complete pipeline
-    results = pipeline.run_pipeline()
-    
-    # Access the results
-    print(f"Processed {results['raw_documents_count']} documents into {results['processed_chunks_count']} chunks")
-    print(f"Models initialized: LLM={results['llm_model'] is not None}, Embeddings={results['embeddings_model'] is not None}")
-    print(f"Rmebedding model: {results['embeddings_model'].model}")
-    print(f"Connection test: {'Passed' if results['connection_status'] else 'Failed'}")
-    print(f"Chroma vectorstore loaded: {results['chroma_vectorstore'] is not None}")
-    print(f"First chunk metadata: {results['chunks'][0].metadata if results['chunks'] else 'No chunks available'}")
