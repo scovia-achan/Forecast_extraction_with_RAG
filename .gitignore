@@ -1,5 +1,5 @@
 .env
-chromadb/
+chroma_db/
 __pycache__/
 data/
 *.sqlite3
