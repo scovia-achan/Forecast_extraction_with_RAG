@@ -76,7 +76,7 @@ class DocumentQueryEngine:
         self.retriever = vectorstore.as_retriever(
             search_type="mmr",
             search_kwargs={
-            "k": 10,           # Get more chunks
+            "k": 30,           # Get more chunks
             "lambda_mult": 0.5  # More diversity
     }
         )

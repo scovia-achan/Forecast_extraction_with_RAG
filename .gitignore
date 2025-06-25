@@ -1,4 +1,9 @@
 .env
-chroma_db
+chromadb/
 __pycache__/
+data/
+*.sqlite3
+*.pickle
+*.bin
+
 *.pyc
