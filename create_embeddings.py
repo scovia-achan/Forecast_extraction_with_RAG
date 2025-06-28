@@ -3,18 +3,19 @@ from chroma_manager import *
 
 def process_and_store_documents():
     load_dotenv()
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("OPEN_API_KEY")
     
     PDF_FOLDER = "./data/pdfs"
     
     # Your existing configuration
     chunking_config = ChunkingConfig(chunk_size=1000, chunk_overlap=200)
     model_config = ModelConfig(
-        model_name="gemini-1.5-flash",
-        temperature=0.1,
-        embedding_model="models/text-embedding-004"
+        model_name= "gpt-4o-mini",  # or "gpt-3.5-turbo" for cheaper option
+        temperature = 0.1,
+        max_tokens = None,
+        embedding_model = "text-embedding-3-small"
     )
-    
+
     # Process documents
     pipeline = DocumentProcessingPipeline(
         pdf_folder_path=PDF_FOLDER,

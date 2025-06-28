@@ -8,6 +8,8 @@ from dataclasses import dataclass
 import PyPDF2
 import google.generativeai as genai
 from langchain_google_genai import GoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+import openai
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from chroma_manager import *
@@ -29,11 +31,11 @@ class ChunkingConfig:
 
 @dataclass
 class ModelConfig:
-    """Configuration for Gemini model parameters"""
-    model_name: str = "gemini-1.5-flash"
+    """Configuration for OpenAI model parameters"""
+    model_name: str = "gpt-4o-mini"  # or "gpt-3.5-turbo" for cheaper option
     temperature: float = 0.1
     max_tokens: Optional[int] = None
-    embedding_model: str = "models/text-embedding-004"
+    embedding_model: str = "text-embedding-3-small"  # or "text-embedding-ada-002"
 
 class PDFDocumentLoader:
     """Handles loading and extracting text from PDF documents"""
@@ -181,55 +183,55 @@ class DocumentPreprocessor:
         
         return chunks
 
-class GeminiModelManager:
-    """Manages initialization and configuration of Google Gemini models"""
+class OpenAIModelManager:
+    """Manages initialization and configuration of OpenAI models"""
     
     def __init__(self, api_key: str, config: ModelConfig = None):
         self.api_key = api_key
         self.config = config or ModelConfig()
-        self._initialize_genai()
+        self._initialize_openai()
         self.llm = None
         self.embeddings = None
     
-    def _initialize_genai(self):
-        """Initialize the Google GenerativeAI client"""
+    def _initialize_openai(self):
+        """Initialize the OpenAI client"""
         try:
-            genai.configure(api_key=self.api_key)
-            logger.info("Google GenerativeAI configured successfully")
+            openai.api_key = self.api_key
+            logger.info("OpenAI configured successfully")
         except Exception as e:
-            logger.error(f"Failed to configure Google GenerativeAI: {str(e)}")
+            logger.error(f"Failed to configure OpenAI: {str(e)}")
             raise
     
-    def initialize_llm(self) -> GoogleGenerativeAI:
-        """Initialize the Gemini LLM model"""
+    def initialize_llm(self) -> ChatOpenAI:
+        """Initialize the OpenAI LLM model"""
         try:
-            self.llm = GoogleGenerativeAI(
+            self.llm = ChatOpenAI(
                 model=self.config.model_name,
-                google_api_key=self.api_key,
+                openai_api_key=self.api_key,
                 temperature=self.config.temperature,
                 max_tokens=self.config.max_tokens
             )
-            logger.info(f"Gemini LLM initialized: {self.config.model_name}")
+            logger.info(f"OpenAI LLM initialized: {self.config.model_name}")
             return self.llm
         except Exception as e:
-            logger.error(f"Failed to initialize Gemini LLM: {str(e)}")
+            logger.error(f"Failed to initialize OpenAI LLM: {str(e)}")
             raise
     
-    def initialize_embeddings(self) -> GoogleGenerativeAIEmbeddings:
-        """Initialize the Google embeddings model"""
+    def initialize_embeddings(self) -> OpenAIEmbeddings:
+        """Initialize the OpenAI embeddings model"""
         try:
-            self.embeddings = GoogleGenerativeAIEmbeddings(
+            self.embeddings = OpenAIEmbeddings(
                 model=self.config.embedding_model,
-                google_api_key=self.api_key
+                openai_api_key=self.api_key
             )
-            logger.info(f"Google embeddings initialized: {self.config.embedding_model}")
+            logger.info(f"OpenAI embeddings initialized: {self.config.embedding_model}")
             return self.embeddings
         except Exception as e:
-            logger.error(f"Failed to initialize Google embeddings: {str(e)}")
+            logger.error(f"Failed to initialize OpenAI embeddings: {str(e)}")
             raise
     
     def test_connection(self) -> bool:
-        """Test the connection to Google's services"""
+        """Test the connection to OpenAI's services"""
         try:
             # Test LLM
             if self.llm:
@@ -262,7 +264,7 @@ class DocumentProcessingPipeline:
         # Initialize components
         self.loader = PDFDocumentLoader(pdf_folder_path)
         self.preprocessor = DocumentPreprocessor(chunking_config)
-        self.model_manager = GeminiModelManager(google_api_key, model_config)
+        self.model_manager = OpenAIModelManager(google_api_key, model_config)
         self.chromadb_manager = ChromaDBManager(chroma_dir)
         
         # Will store processed data

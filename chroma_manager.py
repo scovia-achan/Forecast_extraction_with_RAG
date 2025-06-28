@@ -2,6 +2,7 @@ from langchain.vectorstores import Chroma
 import logging
 from typing import List, Optional, Dict
 from langchain_google_genai import GoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain.schema import Document
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
@@ -23,7 +24,7 @@ class ChromaDBManager:
     def create_or_load_vectorstore(
         self,
         chunks: List[Document],
-        embedding_model: GoogleGenerativeAIEmbeddings,
+        embedding_model: OpenAIEmbeddings,
         collection_name: str = "document_chunks",
     ) -> Chroma:
         """
@@ -48,7 +49,7 @@ class ChromaDBManager:
 
     def load_existing_vectorstore(
         self, 
-        embedding_model: GoogleGenerativeAIEmbeddings,
+        embedding_model: OpenAIEmbeddings,
         collection_name: str = "document_chunks"
     ) -> Chroma:
         """Load an existing Chroma vector store without processing new documents"""
@@ -70,7 +71,7 @@ class DocumentQueryEngine:
 
     def __init__(self,
                  vectorstore: Chroma,
-                 llm: GoogleGenerativeAI,
+                 llm: ChatOpenAI,
                  prompt: PromptTemplate
                  ):
         self.retriever = vectorstore.as_retriever(
